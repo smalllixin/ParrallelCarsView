@@ -1,0 +1,20 @@
+PODS:
+  - pop (1.0.6)
+  - UIColor+MLPFlatColors (1.0)
+  - UIView+AutoLayout (2.0.0)
+
+DEPENDENCIES:
+  - pop (~> 1.0)
+  - UIColor+MLPFlatColors (~> 1.0)
+  - UIView+AutoLayout (from `git@github.com:whisper1/UIView-Autolayout.git`)
+
+EXTERNAL SOURCES:
+  UIView+AutoLayout:
+    :git: git@github.com:whisper1/UIView-Autolayout.git
+
+SPEC CHECKSUMS:
+  pop: e518794da38942c05255eb64b36d894e70cb4f00
+  UIColor+MLPFlatColors: d74d0e59ba8eb8960c0f8136928056d91e208585
+  UIView+AutoLayout: 8ac33cc1aeb8ed9c1a2ec43975f5a9fde0be991f
+
+COCOAPODS: 0.33.1
