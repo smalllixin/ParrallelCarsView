@@ -10,8 +10,8 @@
 #import <UIView+AutoLayout.h>
 #import <UIColor+MLPFlatColors.h>
 //#import "WSwipeCardView.h"
-#import "WCardsShowView.h"
-@interface ViewController ()<WCardsShowViewDelegate>
+#import "WParrallelCardsView.h"
+@interface ViewController ()<WParrallelCardsViewDelegate>
 
 //@property (nonatomic, weak) WSwipeCardView *cardView;
 
@@ -47,7 +47,7 @@
 //    [_cardView reloadData];
     
     
-    WCardsShowView *cs = [WCardsShowView newAutoLayoutView];
+    WParrallelCardsView *cs = [WParrallelCardsView newAutoLayoutView];
     [self.scrollView addSubview:cs];
     [cs autoPinEdgeToSuperviewEdge:ALEdgeTop withInset:300];
     [cs autoPinEdgeToSuperviewEdge:ALEdgeLeft];
@@ -106,12 +106,12 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (NSInteger)numberOfItemInCardsShowView:(WCardsShowView*)cardsView
+- (NSInteger)numberOfItemInCardsShowView:(WParrallelCardsView*)cardsView
 {
     return 6;
 }
 
-- (UIView*)itemInCardsShowView:(WCardsShowView*)cardsView atIndex:(NSInteger)atIndex
+- (UIView*)itemInCardsShowView:(WParrallelCardsView*)cardsView atIndex:(NSInteger)atIndex
 {
     UIView *pureColorView = [UIView newAutoLayoutView];
     switch (atIndex) {

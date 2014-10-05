@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2A5194A8873146658D28E2F3 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 27013AEF35334172A9109BAE /* libPods.a */; };
-		A3AB227B19CAABA500E4FAE8 /* WCardsShowView.m in Sources */ = {isa = PBXBuildFile; fileRef = A3AB227A19CAABA500E4FAE8 /* WCardsShowView.m */; };
+		A3AB227B19CAABA500E4FAE8 /* WParrallelCardsView.m in Sources */ = {isa = PBXBuildFile; fileRef = A3AB227A19CAABA500E4FAE8 /* WParrallelCardsView.m */; };
 		A3F8D74519C3CC1E004D0E03 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = A3F8D74419C3CC1E004D0E03 /* main.m */; };
 		A3F8D74819C3CC1E004D0E03 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A3F8D74719C3CC1E004D0E03 /* AppDelegate.m */; };
 		A3F8D74B19C3CC1E004D0E03 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A3F8D74A19C3CC1E004D0E03 /* ViewController.m */; };
@@ -32,8 +32,8 @@
 /* Begin PBXFileReference section */
 		0D569768DCA44EBAB64F979A /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
 		27013AEF35334172A9109BAE /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		A3AB227919CAABA500E4FAE8 /* WCardsShowView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WCardsShowView.h; sourceTree = "<group>"; };
-		A3AB227A19CAABA500E4FAE8 /* WCardsShowView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WCardsShowView.m; sourceTree = "<group>"; };
+		A3AB227919CAABA500E4FAE8 /* WParrallelCardsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WParrallelCardsView.h; sourceTree = "<group>"; };
+		A3AB227A19CAABA500E4FAE8 /* WParrallelCardsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WParrallelCardsView.m; sourceTree = "<group>"; };
 		A3F8D73F19C3CC1E004D0E03 /* swipecard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = swipecard.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A3F8D74319C3CC1E004D0E03 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A3F8D74419C3CC1E004D0E03 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -107,8 +107,8 @@
 				A3F8D74A19C3CC1E004D0E03 /* ViewController.m */,
 				A3F8D76819C3CD2C004D0E03 /* WSwipeCardView.h */,
 				A3F8D76919C3CD2C004D0E03 /* WSwipeCardView.m */,
-				A3AB227919CAABA500E4FAE8 /* WCardsShowView.h */,
-				A3AB227A19CAABA500E4FAE8 /* WCardsShowView.m */,
+				A3AB227919CAABA500E4FAE8 /* WParrallelCardsView.h */,
+				A3AB227A19CAABA500E4FAE8 /* WParrallelCardsView.m */,
 				A3F8D74C19C3CC1E004D0E03 /* Main.storyboard */,
 				A3F8D74F19C3CC1F004D0E03 /* Images.xcassets */,
 				A3F8D75119C3CC1F004D0E03 /* LaunchScreen.xib */,
@@ -279,7 +279,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A3F8D74B19C3CC1E004D0E03 /* ViewController.m in Sources */,
-				A3AB227B19CAABA500E4FAE8 /* WCardsShowView.m in Sources */,
+				A3AB227B19CAABA500E4FAE8 /* WParrallelCardsView.m in Sources */,
 				A3F8D74819C3CC1E004D0E03 /* AppDelegate.m in Sources */,
 				A3F8D74519C3CC1E004D0E03 /* main.m in Sources */,
 				A3F8D76A19C3CD2C004D0E03 /* WSwipeCardView.m in Sources */,

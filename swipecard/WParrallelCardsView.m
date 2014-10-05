@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 lxtap. All rights reserved.
 //
 
-#import "WCardsShowView.h"
+#import "WParrallelCardsView.h"
 #include <math.h>
 #import <QuartzCore/QuartzCore.h>
 #import <UIView+AutoLayout.h>
@@ -16,7 +16,7 @@ static CGFloat const STACK_HOR_OFFSET = 26;
 static CGFloat const DEEP_DISTANCE = 40;
 static CGFloat const perspective = -1.0/500.0;
 
-@interface WCardsShowView()<UIGestureRecognizerDelegate>
+@interface WParrallelCardsView()<UIGestureRecognizerDelegate>
 @property (nonatomic, weak) UIView *contentView;
 @property (nonatomic, strong) NSMutableArray *contentLayers;
 @property (nonatomic, assign) NSInteger cardCount;
@@ -32,7 +32,7 @@ struct WCardsShowViewState
     CGFloat opacity;
 };
 
-@implementation WCardsShowView
+@implementation WParrallelCardsView
 {
     CGRect vFrame;
     NSInteger visibleCardCount;
@@ -125,7 +125,7 @@ struct WCardsShowViewState
     }
     else// (stackIdx > currentTop) {
     {
-        return 320;
+        return CGRectGetWidth(self.frame);
     }
 }
 
