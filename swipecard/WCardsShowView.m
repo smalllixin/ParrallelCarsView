@@ -7,24 +7,38 @@
 //
 
 #import "WCardsShowView.h"
+#include <math.h>
 #import <QuartzCore/QuartzCore.h>
 #import <UIView+AutoLayout.h>
-@interface WCardsShowView()
+
+static CGFloat const MARGIN_LEFT = 44;
+static CGFloat const STACK_HOR_OFFSET = 26;
+static CGFloat const DEEP_DISTANCE = 40;
+static CGFloat const perspective = -1.0/500.0;
+
+@interface WCardsShowView()<UIGestureRecognizerDelegate>
 @property (nonatomic, weak) UIView *contentView;
 @property (nonatomic, strong) NSMutableArray *contentLayers;
 @property (nonatomic, assign) NSInteger cardCount;
 @property (nonatomic, weak) UIPanGestureRecognizer *panGesture;
 @property (nonatomic, strong) NSTimer *timer;
+@property (nonatomic, assign) NSInteger currentTopVisibleCard;
 @end
+
+struct WCardsShowViewState
+{
+    CGFloat xMove;
+    CGFloat zMove;
+    CGFloat opacity;
+};
 
 @implementation WCardsShowView
 {
-    NSInteger currentTopVisible;
     CGRect vFrame;
-    CGFloat perspective;
     NSInteger visibleCardCount;
 }
 
+#pragma mark - Initialization
 - (id)init {
     if (self = [super init]) {
         self.backgroundColor = [UIColor blackColor];
@@ -33,18 +47,27 @@
         _contentView = contentView;
         [_contentView autoPinEdgesToSuperviewEdges];
         _cardCount = 0;
-        perspective = -1.0/500.0;
+        
         _contentLayers = [NSMutableArray array];
         UIPanGestureRecognizer *pan = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panMove:)];
         [self addGestureRecognizer:pan];
         _panGesture = pan;
         
+        _panGesture.delegate = self;
+        
         self.layer.masksToBounds = YES;
-//        _timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(tick:) userInfo:nil repeats:YES];
     }
     return self;
 }
 
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    vFrame = self.frame;
+    [self makeCardsStackEffect];
+}
+
+#pragma mark - Public
 - (void)reloadData
 {
     if (self.delegate) {
@@ -66,40 +89,112 @@
             [_contentLayers addObject:card.layer];
             [card autoPinEdgesToSuperviewEdges];
         }
+        
+        _currentTopVisibleCard = _cardCount - 1;
         [self makeCardsStackEffect];
     }
 }
 
-- (void)tick:(id)tm
+#pragma mark - Effect Handle
+/**
+ 1. currentView 向任何方向滑动，会引起自身的变化，可以设置移动范围对其scale的影响
+ 2. currentView 之下的view
+ 
+ 每一层的view都有他的位移变化 scale变化，alpha变化范围
+ 每一层的view都有他的dock位置
+ pan gesture在x alxis方向会影响
+ 
+ 让所有view x offset 都是相等的
+ A
+   B
+     C <- current
+ zOffset 在under currentIndex是均匀的， 在>= currentIndex是增加的
+ 
+ 这样均匀控制x,不均匀控制z，可以简化计算
+ */
+
+- (CGFloat)viewPosXInStack:(NSInteger)stackIdx currentTop:(NSInteger)currentTop totalStackCount:(NSInteger)count
 {
-    static int k = 0;
-    CGFloat deepDistance = 20;
-    CGFloat horOffset = 20;
-    for (int i = 0; i < _cardCount; i ++) {
-        UIView *card = [_contentView.subviews objectAtIndex:i];
+    if (stackIdx < currentTop) {
         
-        if (i < _cardCount - visibleCardCount) {
-            card.layer.opacity = 0;
-        } else {
-            CATransform3D t = CATransform3DIdentity;
-            t.m34 = perspective;
-            t = CATransform3DTranslate(t, 10+ horOffset*i, 0, -deepDistance*_cardCount+i*deepDistance);
-            card.layer.transform = t;
-            card.layer.opacity = 1;
-        }
+        CGFloat standardXMove = MARGIN_LEFT - STACK_HOR_OFFSET*(currentTop-stackIdx);
+        return standardXMove;
+    }
+    else if (stackIdx == currentTop) {
+        return MARGIN_LEFT;
+    }
+    else// (stackIdx > currentTop) {
+    {
+        return 320;
     }
 }
 
-- (void)layoutSubviews
+- (CGFloat)viewPosZInStack:(NSInteger)stackIdx currentTop:(NSInteger)currentTop totalStackCount:(NSInteger)count
 {
-    [super layoutSubviews];
-    vFrame = self.frame;
-    [self makeCardsStackEffect];
+    if (stackIdx < currentTop) {
+        return -DEEP_DISTANCE - (currentTop-stackIdx)*DEEP_DISTANCE;
+//        return -DEEP_DISTANCE*(count) + stackIdx*DEEP_DISTANCE;
+    }
+    else if (stackIdx == currentTop) {
+        return -DEEP_DISTANCE;
+    }
+    else// (stackIdx > currentTop) {
+    {
+        return DEEP_DISTANCE*5;
+    }
 }
 
-static CGFloat const MARGIN_LEFT = 34;
-static CGFloat const STACK_HOR_OFFSET = 26;
-static CGFloat const DEEP_DISTANCE = 40;
+/*
+ moveScale [-1, 0, 1],  -1 means move left,  0 ,  1 means move right
+ */
+- (struct WCardsShowViewState)viewStateInStack:(NSInteger)stackIdx currentTop:(NSInteger)currentTop totalStackCount:(NSInteger)count moveScale:(CGFloat)moveScale
+{
+    struct WCardsShowViewState s;
+    
+//    int visibleCount = count - stackIdx;
+    const CGFloat DISAPPEAR_ACCELERATE_FACTOR = 1.5f;
+    
+    CGFloat standardXMove = [self viewPosXInStack:stackIdx currentTop:currentTop totalStackCount:count];
+    if (moveScale == 0) {
+        s.xMove = standardXMove;
+    } else if (moveScale > 0) {
+        CGFloat topperX = [self viewPosXInStack:stackIdx+1 currentTop:currentTop totalStackCount:count];
+        s.xMove = standardXMove + (topperX - standardXMove)*moveScale;
+    } else if (moveScale < 0) {
+        CGFloat underX = [self viewPosXInStack:stackIdx-1 currentTop:currentTop totalStackCount:count];
+        s.xMove = standardXMove + ABS(underX - standardXMove)*moveScale;
+    }
+    
+    CGFloat standardZMove = [self viewPosZInStack:stackIdx currentTop:currentTop totalStackCount:count];
+    if (moveScale == 0) {
+        s.zMove = standardZMove;
+    } else if (moveScale > 0) {
+        CGFloat topperZ = [self viewPosZInStack:stackIdx+1 currentTop:currentTop totalStackCount:count];
+        s.zMove = standardZMove + ABS(topperZ - standardZMove)*moveScale*DISAPPEAR_ACCELERATE_FACTOR; //*2 accelerate scale speed
+    } else {
+        CGFloat underZ = [self viewPosZInStack:stackIdx-1 currentTop:currentTop totalStackCount:count];
+        s.zMove = standardZMove + ABS(underZ - standardZMove)*moveScale;
+    }
+
+    if (stackIdx < currentTop) {
+        s.opacity = 1;
+    } else if (stackIdx == currentTop) {
+        if (moveScale < 0) {
+            s.opacity = 1;
+        } else {
+            s.opacity = (1-moveScale*DISAPPEAR_ACCELERATE_FACTOR) * 1;
+        }
+    } else {//stackIdx > currentTop
+        if (moveScale < 0) {
+            s.opacity = ABS(moveScale * DISAPPEAR_ACCELERATE_FACTOR * 1);
+        } else {
+            s.opacity = 0;
+        }
+    }
+    
+    return s;
+}
+
 - (void)makeCardsStackEffect
 {
     if (CGRectIsEmpty(self.frame)) {
@@ -107,63 +202,88 @@ static CGFloat const DEEP_DISTANCE = 40;
     }
     for (int i = 0; i < _cardCount; i ++) {
         CALayer *layer = [_contentLayers objectAtIndex:i];
-        
-        if (i < _cardCount - visibleCardCount) {
-            layer.opacity = 0;
-        } else {
-            layer.opacity = 1;
-        }
-        
-        CATransform3D t = CATransform3DIdentity;
-        t.m34 = perspective;
-        NSLog(@"i:%d, %f",i, MARGIN_LEFT - STACK_HOR_OFFSET*(_cardCount-1-i));
-        t = CATransform3DTranslate(t, MARGIN_LEFT - STACK_HOR_OFFSET*(_cardCount-1-i), 0, -DEEP_DISTANCE*_cardCount+i*DEEP_DISTANCE);
-        layer.transform = t;
+        struct WCardsShowViewState s = [self viewStateInStack:i currentTop:_cardCount-1 totalStackCount:_cardCount moveScale:0];
+        layer.opacity = s.opacity;
+        layer.transform = [self buildTransformWithX:s.xMove zMove:s.zMove];
     }
 }
-- (void)moveWall:(CALayer*)wall toDepth:(float)depth {
-    NSNumber* value = [NSNumber numberWithFloat:depth];
-    [wall setValue:value forKeyPath:@"transform.translation.z"];
+
+- (CATransform3D)buildTransformWithX:(CGFloat)xMove zMove:(CGFloat)zMove
+{
+    CATransform3D t = CATransform3DIdentity;
+    t.m34 = perspective;
+    t = CATransform3DTranslate(t, xMove, 0, zMove);
+    t = CATransform3DRotate(t, 10*M_PI/180, 0, 1, 0);
+    return t;
 }
 
-
+#pragma mark - Gesture Event
 - (void)panMove:(UIPanGestureRecognizer*)recognizer
 {
-//    static CGFloat const SwipeDisappearScale = 0.2;
-//    UIView *currentTopView = [_contentView.subviews objectAtIndex:currentTopVisible];
     if (recognizer.state == UIGestureRecognizerStateBegan) {
-//        panBeginConstant = CGRectGetMinX(currentTopView.frame);
+//        [self logLayerState];
     } else if (recognizer.state == UIGestureRecognizerStateChanged) {
         CGPoint trans = [recognizer translationInView:self];
         
-        
-        
+        static CGFloat const SwipeDisappearScale = 0.6f;
         CGFloat width = CGRectGetWidth(self.frame);
-        CGFloat dispearDistance = width;// * SwipeDisappearScale;
-        //TBD alpha calculate
-        CGFloat transScale = trans.x*5 / dispearDistance;//,1.5);
-        //TBD transform
-        
-        for (int i = _cardCount-visibleCardCount; i < _cardCount; i ++) {
+        CGFloat dispearDistance = width*SwipeDisappearScale;// * SwipeDisappearScale;
+        CGFloat transScale = MAX(-1, MIN(1, trans.x / dispearDistance));
+        for (int i = 0; i < _cardCount; i ++) {
+            struct WCardsShowViewState s = [self viewStateInStack:i currentTop:_currentTopVisibleCard totalStackCount:_cardCount moveScale:transScale];
             CALayer *viewLayer = _contentLayers[i];
-            CATransform3D t = CATransform3DIdentity;
-            t.m34 = perspective;
-            t = CATransform3DTranslate(t,
-                                       MARGIN_LEFT - STACK_HOR_OFFSET*(_cardCount-1-i) + STACK_HOR_OFFSET*transScale,
-                                       0,
-                                       -DEEP_DISTANCE*_cardCount+i*DEEP_DISTANCE + DEEP_DISTANCE*transScale);
-            viewLayer.transform = t;
+            viewLayer.opacity = s.opacity;
+            viewLayer.transform = [self buildTransformWithX:s.xMove zMove:s.zMove];
+        }
+    } else {
+        // end or cancel
+        CGPoint trans = [recognizer translationInView:self];
+
+        BOOL moveDirection;
+        if (trans.x > 0) {
+            moveDirection = 1;
+        } else if (trans.x < 0) {
+            moveDirection = -1;
+        } else {
+            return;
         }
         
+        _currentTopVisibleCard = MIN(MAX(_currentTopVisibleCard-moveDirection, 0), _cardCount-1);
+        
+        for (int i = 0; i < _cardCount; i ++) {
+            CALayer *viewLayer = _contentLayers[i];
+            struct WCardsShowViewState s = [self viewStateInStack:i currentTop:_currentTopVisibleCard totalStackCount:_cardCount moveScale:0];
+            [UIView animateWithDuration:0.3f delay:0 options:UIViewAnimationOptionCurveEaseOut|UIViewAnimationOptionAllowUserInteraction animations:^{
+                viewLayer.opacity = s.opacity;
+                viewLayer.transform = [self buildTransformWithX:s.xMove zMove:s.zMove];
+            } completion:^(BOOL finished) {
+                if (finished) {
+                }
+            }];
+        }
+//        NSLog(@"AFTER----");
+//        [self logLayerState];
     }
 }
 
-/*
-// Only override drawRect: if you perform custom drawing.
-// An empty implementation adversely affects performance during animation.
-- (void)drawRect:(CGRect)rect {
-    // Drawing code
+- (void)logLayerState
+{
+    NSLog(@"current:%d", _currentTopVisibleCard);
+    for (int i = 0; i < _cardCount; i ++) {
+        struct WCardsShowViewState s = [self viewStateInStack:i currentTop:_currentTopVisibleCard totalStackCount:_cardCount moveScale:0];
+        NSLog(@"s%d  x:%f  z:%f", i, s.xMove, s.zMove);
+    }
 }
-*/
 
+#pragma mark - Gesture Delegate
+- (BOOL)gestureRecognizerShouldBegin:(UIPanGestureRecognizer *)gestureRecognizer
+{
+    CGPoint trans = [gestureRecognizer translationInView:self];
+//    NSLog(@"should x:%f y:%f", trans.x, trans.y);
+    if (fabsf(trans.y) > fabsf(trans.x)) {
+        return NO;
+    } else {
+        return YES;
+    }
+}
 @end

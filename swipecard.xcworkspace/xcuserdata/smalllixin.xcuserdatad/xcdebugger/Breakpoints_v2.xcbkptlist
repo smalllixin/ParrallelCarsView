@@ -73,22 +73,6 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "swipecard/ViewController.m"
-            timestampString = "432724057.385258"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "137"
-            endingLineNumber = "137"
-            landmarkName = "-itemInSwipeCard:atIndex:"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
             filePath = "swipecard/WSwipeCardView.m"
             timestampString = "432369323.311215"
             startingColumnNumber = "9223372036854775807"
@@ -137,13 +121,13 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "swipecard/WCardsShowView.m"
-            timestampString = "433159060.272619"
+            filePath = "swipecard/ViewController.m"
+            timestampString = "434161623.876648"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "95"
-            endingLineNumber = "95"
-            landmarkName = "-layoutSubviews"
+            startingLineNumber = "94"
+            endingLineNumber = "94"
+            landmarkName = "-timerTick:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -154,44 +138,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "swipecard/WCardsShowView.m"
-            timestampString = "433159060.272619"
+            timestampString = "434162246.514937"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "96"
-            endingLineNumber = "96"
-            landmarkName = "-layoutSubviews"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "swipecard/WCardsShowView.m"
-            timestampString = "433159060.272619"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "82"
-            endingLineNumber = "82"
-            landmarkName = "-tick:"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "swipecard/WCardsShowView.m"
-            timestampString = "433159060.272619"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "81"
-            endingLineNumber = "81"
-            landmarkName = "-tick:"
+            startingLineNumber = "245"
+            endingLineNumber = "245"
+            landmarkName = "-panMove:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
