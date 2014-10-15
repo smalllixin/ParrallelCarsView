@@ -113,7 +113,15 @@
 
 - (UIView*)itemInCardsShowView:(WParrallelCardsView*)cardsView atIndex:(NSInteger)atIndex
 {
-    UIView *pureColorView = [UIView newAutoLayoutView];
+    UIView *pureColorView = [cardsView cachedViewAtIndex:atIndex];
+    if (pureColorView == nil) {
+        pureColorView = [UIView newAutoLayoutView];
+        UILabel *descrLabel = [UILabel newAutoLayoutView];
+        descrLabel.tag = 2;
+        [pureColorView addSubview:descrLabel];
+        [descrLabel autoPinEdgesToSuperviewEdgesWithInsets:UIEdgeInsetsMake(0, 5, 0, 0) excludingEdge:ALEdgeRight];
+    }
+    UILabel *descrLabel = (UILabel*)[pureColorView viewWithTag:2];
     switch (atIndex) {
         case 0:
             pureColorView.backgroundColor = [UIColor flatDarkPurpleColor];
@@ -135,11 +143,9 @@
             break;
     }
     
-    UILabel *descrLabel = [UILabel newAutoLayoutView];
-    descrLabel.text = [NSString stringWithFormat:@"%d", atIndex];
+    descrLabel.text = [NSString stringWithFormat:@"%ld", atIndex];
     descrLabel.textColor = [UIColor whiteColor];
-    [pureColorView addSubview:descrLabel];
-    [descrLabel autoPinEdgesToSuperviewEdgesWithInsets:UIEdgeInsetsMake(0, 5, 0, 0) excludingEdge:ALEdgeRight];
+    
     return pureColorView;
 }
 

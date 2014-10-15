@@ -11,9 +11,9 @@
 #import <QuartzCore/QuartzCore.h>
 #import <UIView+AutoLayout.h>
 
-static CGFloat const MARGIN_LEFT = 44;
+static CGFloat const MARGIN_LEFT = 10;
 static CGFloat const STACK_HOR_OFFSET = 26;
-static CGFloat const DEEP_DISTANCE = 40;
+static CGFloat const DEEP_DISTANCE = 60;
 static CGFloat const perspective = -1.0/500.0;
 
 @interface WParrallelCardsView()<UIGestureRecognizerDelegate>
@@ -23,6 +23,8 @@ static CGFloat const perspective = -1.0/500.0;
 @property (nonatomic, weak) UIPanGestureRecognizer *panGesture;
 @property (nonatomic, strong) NSTimer *timer;
 @property (nonatomic, assign) NSInteger currentTopVisibleCard;
+
+@property (nonatomic, strong) NSMutableArray *cacheViews;
 @end
 
 struct WCardsShowViewState
@@ -41,7 +43,7 @@ struct WCardsShowViewState
 #pragma mark - Initialization
 - (id)init {
     if (self = [super init]) {
-        self.backgroundColor = [UIColor blackColor];
+        //        self.backgroundColor = [UIColor blackColor];
         UIView *contentView = [UIView newAutoLayoutView];
         [self addSubview:contentView];
         _contentView = contentView;
@@ -72,6 +74,9 @@ struct WCardsShowViewState
 {
     if (self.delegate) {
         _cardCount = [self.delegate numberOfItemInCardsShowView:self];
+        if (!_cacheViews && _cardCount > 0) {
+            _cacheViews = [[NSMutableArray alloc] initWithCapacity:_cardCount];
+        }
         visibleCardCount = _cardCount - 1;
         if (visibleCardCount > 3) {
             visibleCardCount = 3;
@@ -88,10 +93,22 @@ struct WCardsShowViewState
             [_contentView addSubview:card];
             [_contentLayers addObject:card.layer];
             [card autoPinEdgesToSuperviewEdges];
+            if (i >= _cacheViews.count) {
+                [_cacheViews addObject:card];
+            }
         }
         
         _currentTopVisibleCard = _cardCount - 1;
         [self makeCardsStackEffect];
+    }
+}
+
+- (UIView*)cachedViewAtIndex:(NSInteger)atIndex
+{
+    if (atIndex < _cacheViews.count) {
+        return _cacheViews[atIndex];
+    } else {
+        return nil;
     }
 }
 
@@ -106,8 +123,8 @@ struct WCardsShowViewState
  
  让所有view x offset 都是相等的
  A
-   B
-     C <- current
+ B
+ C <- current
  zOffset 在under currentIndex是均匀的， 在>= currentIndex是增加的
  
  这样均匀控制x,不均匀控制z，可以简化计算
@@ -133,7 +150,7 @@ struct WCardsShowViewState
 {
     if (stackIdx < currentTop) {
         return -DEEP_DISTANCE - (currentTop-stackIdx)*DEEP_DISTANCE;
-//        return -DEEP_DISTANCE*(count) + stackIdx*DEEP_DISTANCE;
+        //        return -DEEP_DISTANCE*(count) + stackIdx*DEEP_DISTANCE;
     }
     else if (stackIdx == currentTop) {
         return -DEEP_DISTANCE;
@@ -151,7 +168,7 @@ struct WCardsShowViewState
 {
     struct WCardsShowViewState s;
     
-//    int visibleCount = count - stackIdx;
+    //    int visibleCount = count - stackIdx;
     const CGFloat DISAPPEAR_ACCELERATE_FACTOR = 1.5f;
     
     CGFloat standardXMove = [self viewPosXInStack:stackIdx currentTop:currentTop totalStackCount:count];
@@ -175,7 +192,7 @@ struct WCardsShowViewState
         CGFloat underZ = [self viewPosZInStack:stackIdx-1 currentTop:currentTop totalStackCount:count];
         s.zMove = standardZMove + ABS(underZ - standardZMove)*moveScale;
     }
-
+    
     if (stackIdx < currentTop) {
         s.opacity = 1;
     } else if (stackIdx == currentTop) {
@@ -213,7 +230,7 @@ struct WCardsShowViewState
     CATransform3D t = CATransform3DIdentity;
     t.m34 = perspective;
     t = CATransform3DTranslate(t, xMove, 0, zMove);
-    t = CATransform3DRotate(t, 10*M_PI/180, 0, 1, 0);
+        t = CATransform3DRotate(t, 10*M_PI/180, 0, 1, 0);
     return t;
 }
 
@@ -221,7 +238,7 @@ struct WCardsShowViewState
 - (void)panMove:(UIPanGestureRecognizer*)recognizer
 {
     if (recognizer.state == UIGestureRecognizerStateBegan) {
-//        [self logLayerState];
+        //        [self logLayerState];
     } else if (recognizer.state == UIGestureRecognizerStateChanged) {
         CGPoint trans = [recognizer translationInView:self];
         
@@ -238,8 +255,8 @@ struct WCardsShowViewState
     } else {
         // end or cancel
         CGPoint trans = [recognizer translationInView:self];
-
-        BOOL moveDirection;
+        
+        NSInteger moveDirection;
         if (trans.x > 0) {
             moveDirection = 1;
         } else if (trans.x < 0) {
@@ -261,14 +278,14 @@ struct WCardsShowViewState
                 }
             }];
         }
-//        NSLog(@"AFTER----");
-//        [self logLayerState];
+        //        NSLog(@"AFTER----");
+        //        [self logLayerState];
     }
 }
 
 - (void)logLayerState
 {
-    NSLog(@"current:%d", _currentTopVisibleCard);
+    NSLog(@"current:%ld", (long)_currentTopVisibleCard);
     for (int i = 0; i < _cardCount; i ++) {
         struct WCardsShowViewState s = [self viewStateInStack:i currentTop:_currentTopVisibleCard totalStackCount:_cardCount moveScale:0];
         NSLog(@"s%d  x:%f  z:%f", i, s.xMove, s.zMove);
@@ -279,7 +296,7 @@ struct WCardsShowViewState
 - (BOOL)gestureRecognizerShouldBegin:(UIPanGestureRecognizer *)gestureRecognizer
 {
     CGPoint trans = [gestureRecognizer translationInView:self];
-//    NSLog(@"should x:%f y:%f", trans.x, trans.y);
+    //    NSLog(@"should x:%f y:%f", trans.x, trans.y);
     if (fabsf(trans.y) > fabsf(trans.x)) {
         return NO;
     } else {

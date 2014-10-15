@@ -21,4 +21,5 @@
 @property (nonatomic, weak) id<WParrallelCardsViewDelegate> delegate;
 
 - (void)reloadData;
+- (UIView*)cachedViewAtIndex:(NSInteger)atIndex;
 @end
